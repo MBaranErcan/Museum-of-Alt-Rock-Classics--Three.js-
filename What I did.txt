@@ -3,3 +3,8 @@ skybox
 floor
 camera movement/rotation
 key states and up/down events
+lights (1 ambient, 2 directional, 1 point)
+walls (front, right, left, Back)
+cube & ring (+ rotation)
+text ("MUSEUM OF ALT-ROCK CLASSICS!")
+Added createOutline funtion
