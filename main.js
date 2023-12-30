@@ -1,3 +1,4 @@
+//write "npx vite" in the terminal to start the server.
 import * as THREE from 'three';
 
 const scene = new THREE.Scene();
@@ -14,63 +15,160 @@ document.body.appendChild(renderer.domElement);
 
 // ASSETS
 
-//Ambient Light
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-scene.add(ambientLight);
 
-//Directional Light - 1
-const directionalLight1 = new THREE.DirectionalLight(0x0000ff, 2.5);    // Blue
-directionalLight1.position.set(-50, 10, 0);
-scene.add(directionalLight1);
+    //Ambient Light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(ambientLight);
 
-//Directional Light - 2
-const directionalLight2 = new THREE.DirectionalLight(0xff0000, 2,5);    // Red
-directionalLight2.position.set(50, 10, 0);
-scene.add(directionalLight2);
+    //Directional Light - 1
+    const directionalLight1 = new THREE.DirectionalLight(0x0000ff, 2.5);    // Blue
+    directionalLight1.position.set(-50, 5, 0);
+    scene.add(directionalLight1);
 
-//Point Light
-const pointLight = new THREE.PointLight(0x00ff00, 20);   // Green
-pointLight.position.set(0, 2, 0);
-scene.add(pointLight);
+    //Directional Light - 2
+    const directionalLight2 = new THREE.DirectionalLight(0xff0000, 2.5);    // Red
+    directionalLight2.position.set(50, 5, 0);
+    scene.add(directionalLight2);
 
-
-//Skybox
-const loader = new THREE.CubeTextureLoader();
-const skyboxMaterials = loader.load([
-    'assets/skybox/1.jpg',
-    'assets/skybox/6.jpg',
-    'assets/skybox/3.jpg',
-    'assets/skybox/4.jpg',
-    'assets/skybox/5.jpg',
-    'assets/skybox/2.jpg',
-]);
-scene.background = skyboxMaterials;
-
-// Floor
-const floorGeometry = new THREE.PlaneGeometry(100, 100, 1, 1);
-const floorTexture = new THREE.TextureLoader().load('assets/floor/concrete_2.jpg');
-const floor = new THREE.Mesh(floorGeometry, new THREE.MeshBasicMaterial({ map: floorTexture }));
-
-const repeat = 50;
-floorTexture.wrapS = THREE.RepeatWrapping;
-floorTexture.wrapT = THREE.RepeatWrapping;
-floorTexture.repeat.set(repeat, repeat);
-
-floor.rotation.x = -Math.PI / 2;
-floor.position.y = -0.6;
-scene.add(floor);
-
-// Cube
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshPhongMaterial({ color: 0xffffff });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+    //Point Light
+    const pointLight = new THREE.PointLight(0x00ff00, 20);   // Green
+    pointLight.position.set(0, 0, 0);
+    scene.add(pointLight);
 
 
+    //Skybox
+    const loader = new THREE.CubeTextureLoader();
+    const skyboxMaterials = loader.load([
+        'assets/skybox/1.jpg',
+        'assets/skybox/6.jpg',
+        'assets/skybox/3.jpg',
+        'assets/skybox/2.jpg',
+        'assets/skybox/5.jpg',
+        'assets/skybox/4.jpg',
+    ]);
+    scene.background = skyboxMaterials;
 
-// Set the initial position of the camera.
+    // Floor
+    const floorGeometry = new THREE.PlaneGeometry(100, 100, 1, 1);
+    const floorTexture = new THREE.TextureLoader().load('assets/floor/concrete_2.jpg');
+    const floor = new THREE.Mesh(floorGeometry, new THREE.MeshBasicMaterial({ map: floorTexture }));
+
+    const repeat = 25;
+    floorTexture.wrapS = THREE.RepeatWrapping;
+    floorTexture.wrapT = THREE.RepeatWrapping;
+    floorTexture.repeat.set(repeat, repeat);
+
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -0.6;
+    scene.add(floor);
+
+    // Walls
+        // Front Wall
+        const wallGeometry = new THREE.PlaneGeometry(30, 10, 1, 1);
+        const wallTexture = new THREE.TextureLoader().load('assets/walls/wall_inside.jpg');
+        const wall = new THREE.Mesh(wallGeometry, new THREE.MeshBasicMaterial({ map: wallTexture, color: 0xffffff, side: THREE.DoubleSide, transparent: true}));
+
+        const repeatWallInside = 25;
+        wallTexture.wrapS = THREE.RepeatWrapping;
+        wallTexture.wrapT = THREE.RepeatWrapping;
+        wallTexture.repeat.set(repeatWallInside, repeatWallInside);
+
+        wall.rotation.x = Math.PI;
+        wall.position.y = 0.6; wall.position.z = -10;
+        scene.add(wall);
+
+        // Right Side Wall
+        const wallRight = wall.clone();
+        wallRight.rotation.y = Math.PI / 2;
+        wallRight.position.x = 15; wallRight.position.z = 5;
+        scene.add(wallRight);
+
+        // Left Side Wall
+        const wallLeft = wallRight.clone();
+        wallLeft.position.x = -15;
+        scene.add(wallLeft);
+        
+        // Back Wall
+        const wallBack = wall.clone();
+        wallBack.position.z = 20;
+        scene.add(wallBack);
+    
+
+    // Cube
+    const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const cubeMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+    const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+    cube.rotateZ(0.5); cube.position.y = 2;
+    scene.add(cube);
+
+    // Ring
+    const ringGeometry = new THREE.TorusGeometry(1, 0.08, 30, 40);
+    const ringMaterial = new THREE.MeshToonMaterial({ color: 0x1976D2, shininess: 10 });
+    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+    ring.rotateX(Math.PI / 2); ring.position.y = 2;
+    scene.add(ring);
+
+    // Text
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 800;
+    canvas.height = 180;
+    context.font = "Bold 40px Arial";
+    context.fillStyle = "rgba(255,255,255,0.95)";
+    context.fillText('MUSEUM OF ALT-ROCK CLASSICS!', 0, 50);
+    
+    const texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+    
+    // Define the color for the color pass
+    const textColor = new THREE.Color(0x00ff00);
+    const textMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+            map: { value: texture },
+            color: { value: textColor },
+        },
+        vertexShader: ` 
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); 
+            }
+        `,
+        fragmentShader: `
+            uniform sampler2D map;
+            uniform vec3 color;
+            varying vec2 vUv;
+            void main() {
+                vec4 texColor = texture2D(map, vUv);
+                gl_FragColor = vec4(texColor.rgb * color, texColor.a);
+            }
+        `,
+        transparent: true,
+    });
+    
+    const textGeometry = new THREE.PlaneGeometry(40, 10);
+    const text = new THREE.Mesh(textGeometry, textMaterial);
+    text.position.y = 11;
+    text.position.z = -9.9;
+    scene.add(text);
+
+    // Outlines
+        // Function to create an outline
+        function createOutline(mesh, color, scale) {
+            const outlineMaterial = new THREE.MeshBasicMaterial({ color: color, side: THREE.BackSide });
+            const outlineGeometry = mesh.geometry.clone();
+            const outlineMesh = new THREE.Mesh(outlineGeometry, outlineMaterial);
+            outlineMesh.scale.multiplyScalar(scale);
+            mesh.add(outlineMesh);
+        }
+        // Cube Outline
+        createOutline(cube, 0x000000, 1.05);
+
+        
+
+// Set the initial position and angle of the camera.
 camera.position.set(0, 0, 5);
-camera.rotateX(0);
+camera.rotateX(Math.PI / 10);
 
 // I wanted to add a FPS counter because I was curious about the performance of my program.
 let fps, then = performance.now();                  // It works by calculating the time between each frame.
@@ -114,7 +212,13 @@ function init(now) {
 
     // Render
     renderer.render(scene, camera);
-    cube.rotation.y += 0.002;
+    
+    // Animation
+    // We rotate the cube.
+    cube.rotation.x -= 0.003; cube.rotation.y += 0.003;
+
+    // We rotate the ring.
+    ring.rotation.y += 0.006; ring.rotation.x -= 0.006;
 }
 requestAnimationFrame(init);
 
@@ -159,7 +263,7 @@ function onDocumentKeyUp(event) {
 // MOUSE (Camera) rotation
 window.addEventListener('mousemove', onDocumentMouseMove, false);
 var lastMouseX = 0, lastMouseY = 0;
-var x_rotate = 0;
+var x_rotate = Math.PI / 10; // Initial rotation of the camera.
 var y_rotate = 0;
 function onDocumentMouseMove(event) {
     
