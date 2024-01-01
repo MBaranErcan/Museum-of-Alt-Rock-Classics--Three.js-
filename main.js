@@ -1,6 +1,8 @@
 //write "npx vite" in the terminal to start the server.
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+// SCENE
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
     75, // FOV  (Field of View)
@@ -37,23 +39,23 @@ document.body.appendChild(renderer.domElement);
 
 
     //Skybox
-    const loader = new THREE.CubeTextureLoader();
-    const skyboxMaterials = loader.load([
+    const CubeTextureLoader = new THREE.CubeTextureLoader();
+    const skyboxMaterials = CubeTextureLoader.load([
         'assets/skybox/1.jpg',
         'assets/skybox/6.jpg',
-        'assets/skybox/3.jpg',
-        'assets/skybox/2.jpg',
         'assets/skybox/5.jpg',
+        'assets/skybox/2.jpg',
+        'assets/skybox/3.jpg',
         'assets/skybox/4.jpg',
     ]);
     scene.background = skyboxMaterials;
 
     // Floor
     const floorGeometry = new THREE.PlaneGeometry(100, 100, 1, 1);
-    const floorTexture = new THREE.TextureLoader().load('assets/floor/concrete_2.jpg');
+    const floorTexture = new THREE.TextureLoader().load('assets/floor/rubber_tiles.jpg');
     const floor = new THREE.Mesh(floorGeometry, new THREE.MeshBasicMaterial({ map: floorTexture }));
 
-    const repeat = 25;
+    const repeat = 13;
     floorTexture.wrapS = THREE.RepeatWrapping;
     floorTexture.wrapT = THREE.RepeatWrapping;
     floorTexture.repeat.set(repeat, repeat);
@@ -64,14 +66,14 @@ document.body.appendChild(renderer.domElement);
 
     // Walls
         // Front Wall
-        const wallGeometry = new THREE.PlaneGeometry(30, 10, 1, 1);
-        const wallTexture = new THREE.TextureLoader().load('assets/walls/wall_inside.jpg');
+        const wallGeometry = new THREE.PlaneGeometry(30, 17, 1, 1);
+        const wallTexture = new THREE.TextureLoader().load('assets/walls/concrete.jpg');
         const wall = new THREE.Mesh(wallGeometry, new THREE.MeshBasicMaterial({ map: wallTexture, color: 0xffffff, side: THREE.DoubleSide, transparent: true}));
 
-        const repeatWallInside = 25;
+        const repeatWallInsideWidth = 2, repeatWallInsideHeight = 1;
         wallTexture.wrapS = THREE.RepeatWrapping;
         wallTexture.wrapT = THREE.RepeatWrapping;
-        wallTexture.repeat.set(repeatWallInside, repeatWallInside);
+        wallTexture.repeat.set(repeatWallInsideWidth, repeatWallInsideHeight);
 
         wall.rotation.x = Math.PI;
         wall.position.y = 0.6; wall.position.z = -10;
@@ -121,7 +123,7 @@ document.body.appendChild(renderer.domElement);
     texture.needsUpdate = true;
     
     // Define the color for the color pass
-    const textColor = new THREE.Color(0x00ff00);
+    const textColor = new THREE.Color(0x00f000);
     const textMaterial = new THREE.ShaderMaterial({
         uniforms: {
             map: { value: texture },
@@ -148,9 +150,14 @@ document.body.appendChild(renderer.domElement);
     
     const textGeometry = new THREE.PlaneGeometry(40, 10);
     const text = new THREE.Mesh(textGeometry, textMaterial);
-    text.position.y = 11;
+    text.position.y = 11.5;
     text.position.z = -9.9;
+    text.position.x = 2.5;
     scene.add(text);
+
+    // Set render order to fix the transparency issue. (Half of the wall was not visible)
+    wall.renderOrder = 1;
+    text.renderOrder = 2;
 
     // Outlines
         // Function to create an outline
@@ -165,6 +172,9 @@ document.body.appendChild(renderer.domElement);
         createOutline(cube, 0x000000, 1.05);
 
         
+    // GLTF Model
+    const loaderGLTF = new GLTFLoader();
+    
 
 // Set the initial position and angle of the camera.
 camera.position.set(0, 0, 5);
