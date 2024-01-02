@@ -1,6 +1,10 @@
 //write "npx vite" in the terminal to start the server.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
+
 
 // SCENE
 const scene = new THREE.Scene();
@@ -89,7 +93,6 @@ document.body.appendChild(renderer.domElement);
         const wallLeft = wallRight.clone();
         wallLeft.position.x = -15;
         scene.add(wallLeft);
-        
         // Back Wall
         const wallBack = wall.clone();
         wallBack.position.z = 20;
@@ -159,6 +162,98 @@ document.body.appendChild(renderer.domElement);
     wall.renderOrder = 1;
     text.renderOrder = 2;
 
+
+    // Objects (GLTF & OBJ)
+        // GLTF
+        // loaderGLTF.load('assets/gltf/rock.gltf', function (gltf) {
+        //     const rock = gltf.scene;
+        //     rock.position.x = 0; rock.position.y = 1.5; rock.position.z = 5;
+        //     rock.scale.multiplyScalar(0.1);
+        //     scene.add(rock);
+        //});
+
+        // Loaders
+        var loaderOBJ = new OBJLoader();
+        var loaderGLTF = new GLTFLoader();
+        var loaderFBX = new FBXLoader();
+        var loaderSTL = new STLLoader();
+
+
+        // Batman texture
+        const batmanTexture = new THREE.TextureLoader().load('assets/characters/batman/Batman_texture.png');
+        const batmanMaterial = new THREE.MeshPhongMaterial({ map: batmanTexture });
+
+        // Batman
+        loaderOBJ.load('assets/characters/batman/Batman.obj', (batman) => {
+            batman.traverse(function(child) {
+                if (child instanceof THREE.Mesh) {
+                    child.material = batmanMaterial;
+                }
+            });
+            batman.position.x = -5; 
+            batman.position.y = 2.65; 
+            batman.position.z = -6;
+            batman.scale.multiplyScalar(0.3);
+            
+            scene.add(batman);
+        });
+
+        // Darth vader texture
+        const darthTexture = new THREE.TextureLoader().load('assets/characters/darth_vader/darth_vader.jpg');
+        const darthMaterial = new THREE.MeshPhongMaterial({ map: darthTexture });
+
+        // Darth Vader
+        loaderOBJ.load('assets/characters/darth_vader/Darth Vader.obj', (darth_vader) => {
+            darth_vader.traverse(function(child) {
+                if (child instanceof THREE.Mesh) {
+                    child.material = darthMaterial;
+                }
+            });
+            darth_vader.rotation.y = Math.PI;
+            darth_vader.position.x = 5; 
+            darth_vader.position.y = 1.35; 
+            darth_vader.position.z = 16;
+            darth_vader.scale.multiplyScalar(0.45);
+            
+            scene.add(darth_vader);
+        });
+        // Star-wars 
+
+        
+        // John Wick
+        loaderSTL.load('assets/characters/john_wick/john_wick.stl', function (john_wick) {
+            const johnWickMaterial = new THREE.MeshPhongMaterial({ color: 0x555555 });
+            var john_wick = new THREE.Mesh(john_wick, johnWickMaterial);
+            john_wick.rotation.z = -Math.PI / 20;
+            john_wick.position.x = 10; 
+            john_wick.position.y = -0.8; 
+            john_wick.position.z = 16;
+            john_wick.scale.multiplyScalar(0.03);
+            
+            scene.add(john_wick);
+        });
+
+        // Spiderman texture
+        const spidermanTexture = new THREE.TextureLoader().load('assets/characters/spiderman/spidermanTexture1.png');
+        const spidermanMaterial = new THREE.MeshPhongMaterial({ map: spidermanTexture , color: 0xB11313});
+
+        // Spiderman
+        loaderOBJ.load('assets/characters/spiderman/spiderman.obj', (spiderman) => {
+            spiderman.traverse(function(child) {
+                if (child instanceof THREE.Mesh) {
+                    child.material = spidermanMaterial;
+                }
+            });
+            spiderman.position.x = 5; 
+            spiderman.position.y = -0.6; 
+            spiderman.position.z = -6;
+            spiderman.scale.multiplyScalar(2);
+            scene.add(spiderman);
+        });
+
+
+
+
     // Outlines
         // Function to create an outline
         function createOutline(mesh, color, scale) {
@@ -172,9 +267,6 @@ document.body.appendChild(renderer.domElement);
         createOutline(cube, 0x000000, 1.05);
 
         
-    // GLTF Model
-    const loaderGLTF = new GLTFLoader();
-    
 
 // Set the initial position and angle of the camera.
 camera.position.set(0, 0, 5);

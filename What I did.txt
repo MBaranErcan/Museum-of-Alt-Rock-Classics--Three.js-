@@ -1,7 +1,7 @@
 fpsCounter
 skybox
 floor
-camera movement/rotation
+camera movement/rotation (smooth yapmak için koduna uğratım baya)
 key states and up/down events
 lights (1 ambient, 2 directional, 1 point)
 walls (front, right, left, Back)
