@@ -3,8 +3,18 @@ skybox
 floor
 camera movement/rotation (smooth yapmak için koduna uğratım baya)
 key states and up/down events
-lights (1 ambient, 2 directional, 1 point)
+lights (1 ambient, 4 points)
 walls (front, right, left, Back)
 cube & ring (+ rotation)
-text ("MUSEUM OF ALT-ROCK CLASSICS!")
+text ("MUSEUM OF ???!")
 Added createOutline funtion
+
+Check List
+1-Almost all objects are hierarchically related (posters and sculptures also light, and cube&ring)
+2- We have lots of obj
+3- yep
+4- We have, also a cool one
+5- Also a lot of texture mapping
+6- Better camera controls than Watch Dog 2
+7- Cube, ring and the Text are animated.
+8- Custom shader for the TEXT (" Galactic Icons Museum "), the colors shift as beautiful as a rainbow.

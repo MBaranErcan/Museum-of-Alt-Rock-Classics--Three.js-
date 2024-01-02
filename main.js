@@ -4,7 +4,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
-
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 
 // SCENE
 const scene = new THREE.Scene();
@@ -26,20 +26,21 @@ document.body.appendChild(renderer.domElement);
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    //Directional Light - 1
-    const directionalLight1 = new THREE.DirectionalLight(0x0000ff, 2.5);    // Blue
-    directionalLight1.position.set(-50, 5, 0);
-    scene.add(directionalLight1);
+    // These 3 lights are used to light up the cube with different colors.
+    //Point Light - 1
+    const pointLight1 = new THREE.PointLight(0x0000ff, 50, 7);    // Blue
+    pointLight1.position.set(-2, 0, 0);
+    scene.add(pointLight1);
 
-    //Directional Light - 2
-    const directionalLight2 = new THREE.DirectionalLight(0xff0000, 2.5);    // Red
-    directionalLight2.position.set(50, 5, 0);
-    scene.add(directionalLight2);
+    //Point Light - 2
+    const pointLight2 = new THREE.PointLight(0xff0000, 50, 7);    // Red
+    pointLight2.position.set(2, 0, 0);
+    scene.add(pointLight2);
 
-    //Point Light
-    const pointLight = new THREE.PointLight(0x00ff00, 20);   // Green
-    pointLight.position.set(0, 0, 0);
-    scene.add(pointLight);
+    //Point Light - 3
+    const pointLight3 = new THREE.PointLight(0x00ff00, 50, 7);    // Green
+    pointLight3.position.set(0, 4, 0);
+    scene.add(pointLight3);
 
 
     //Skybox
@@ -114,23 +115,23 @@ document.body.appendChild(renderer.domElement);
     scene.add(ring);
 
     // Text
+    
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     canvas.width = 800;
     canvas.height = 180;
     context.font = "Bold 40px Arial";
     context.fillStyle = "rgba(255,255,255,0.95)";
-    context.fillText('MUSEUM OF ALT-ROCK CLASSICS!', 0, 50);
+    context.fillText('GALACTIC ICONS MUSEUM', 0, 50);
     
     const texture = new THREE.Texture(canvas);
     texture.needsUpdate = true;
-    
+
     // Define the color for the color pass
-    const textColor = new THREE.Color(0x00f000);
     const textMaterial = new THREE.ShaderMaterial({
         uniforms: {
             map: { value: texture },
-            color: { value: textColor },
+            time: { value: 0.0 },
         },
         vertexShader: ` 
             varying vec2 vUv;
@@ -141,21 +142,29 @@ document.body.appendChild(renderer.domElement);
         `,
         fragmentShader: `
             uniform sampler2D map;
-            uniform vec3 color;
+            uniform float time; // To animate the text.
             varying vec2 vUv;
+
             void main() {
                 vec4 texColor = texture2D(map, vUv);
-                gl_FragColor = vec4(texColor.rgb * color, texColor.a);
+
+                vec3 colors = vec3(
+                    0.5 + 0.5 * sin(time * 2.0 + vUv.x * 10.0),
+                    0.5 + 0.5 * sin(time * 2.0 + vUv.x * 10.0 + 2.0),
+                    0.5 + 0.5 * sin(time * 2.0 + vUv.x * 10.0 + 4.0)
+                );
+
+                gl_FragColor = vec4(texColor.rgb * colors, texColor.a);
             }
         `,
         transparent: true,
     });
-    
+
     const textGeometry = new THREE.PlaneGeometry(40, 10);
     const text = new THREE.Mesh(textGeometry, textMaterial);
     text.position.y = 11.5;
     text.position.z = -9.9;
-    text.position.x = 2.5;
+    text.position.x = 6;
     scene.add(text);
 
     // Set render order to fix the transparency issue. (Half of the wall was not visible)
@@ -177,6 +186,7 @@ document.body.appendChild(renderer.domElement);
         var loaderGLTF = new GLTFLoader();
         var loaderFBX = new FBXLoader();
         var loaderSTL = new STLLoader();
+        var loaderMTL = new MTLLoader();
 
 
         // Batman texture
@@ -198,34 +208,89 @@ document.body.appendChild(renderer.domElement);
             scene.add(batman);
         });
 
-        // Darth vader texture
-        const darthTexture = new THREE.TextureLoader().load('assets/characters/darth_vader/darth_vader.jpg');
-        const darthMaterial = new THREE.MeshPhongMaterial({ map: darthTexture });
+        // Batman Poster
+        const darkKnightTexture = new THREE.TextureLoader().load('assets/posters/batman/batman.jpg');
+        const darkKnightMaterial = new THREE.MeshPhongMaterial({ map: darkKnightTexture});
+        var darkKnightPoster = new THREE.Mesh(new THREE.PlaneGeometry(7, 5), darkKnightMaterial);
+        darkKnightPoster.position.x = -5.6;
+        darkKnightPoster.position.y = 5;
+        darkKnightPoster.position.z = -9.9;
+        scene.add(darkKnightPoster);
+
+        
+        // Captain Jack Sparrow
+        loaderMTL.load('assets/characters/captain/Jack_Sparrow.mtl', function (materials) {
+            // Set the materials loaded from the MTLLoader as the materials for the OBJLoader
+            materials.preload();
+
+            // Set the materials for the OBJLoader
+            loaderOBJ.setMaterials(materials);
+
+            // Load your OBJ file
+            loaderOBJ.load('assets/characters/captain/Jack_Sparrow.obj', function(jack_sparrow) {
+                jack_sparrow.position.x = 6; 
+                jack_sparrow.position.y = -0.6; 
+                jack_sparrow.position.z = -6;
+                jack_sparrow.scale.multiplyScalar(0.015);
+                scene.add(jack_sparrow);
+            });
+        });
+
+        // Pirates of the Caribbean poster
+        const piratesTexture = new THREE.TextureLoader().load('assets/posters/pirates/pirates.jpg');
+        const piratesMaterial = new THREE.MeshPhongMaterial({ map: piratesTexture});
+        var piratesPoster = new THREE.Mesh(new THREE.PlaneGeometry(6.66, 5), piratesMaterial);
+        piratesPoster.position.x = 6.4;
+        piratesPoster.position.y = 5;
+        piratesPoster.position.z = -9.9;
+        scene.add(piratesPoster);
 
         // Darth Vader
-        loaderOBJ.load('assets/characters/darth_vader/Darth Vader.obj', (darth_vader) => {
+        let darth_vader;
+        // Darth vader texture
+        const darthTexture = new THREE.TextureLoader().load('assets/characters/darth_vader/darth_vader.jpg');
+        const darthMaterial = new THREE.MeshPhongMaterial({ map: darthTexture, color: 0x0f0f0f, shininess: 30 });
+        // Load Darth Vader model
+        loaderOBJ.load('assets/characters/darth_vader/Darth Vader.obj', (model) => {
+            darth_vader = model;
             darth_vader.traverse(function(child) {
                 if (child instanceof THREE.Mesh) {
                     child.material = darthMaterial;
                 }
             });
             darth_vader.rotation.y = Math.PI;
-            darth_vader.position.x = 5; 
-            darth_vader.position.y = 1.35; 
+            darth_vader.position.x = 7.5;
+            darth_vader.position.y = 2.08;
             darth_vader.position.z = 16;
-            darth_vader.scale.multiplyScalar(0.45);
-            
-            scene.add(darth_vader);
-        });
-        // Star-wars 
+            darth_vader.scale.multiplyScalar(0.62);
 
-        
+            scene.add(darth_vader);
+
+            
+        });
+        // Red Special Light just for Darth Vader (cus he is so cool).
+        const vaderLight = new THREE.PointLight(0xff0000, 1000, 5);
+        vaderLight.position.x = 6.5; vaderLight.position.y = 5; vaderLight.position.z = 14;
+        scene.add(vaderLight);
+
+        // Load Star Wars poster
+        const starWarsTexture = new THREE.TextureLoader().load('assets/posters/star wars/star_wars.webp');
+        const starWarsMaterial = new THREE.MeshPhongMaterial({ map: starWarsTexture, color: 0xffffff, shininess: 30 });
+        var starWarsPoster = new THREE.Mesh(new THREE.PlaneGeometry(7, 5), starWarsMaterial);
+        starWarsPoster.position.x = 6;
+        starWarsPoster.position.y = 5;
+        starWarsPoster.position.z = 19.9;
+        starWarsPoster.rotation.y = Math.PI;
+        scene.add(starWarsPoster);
+
+
         // John Wick
         loaderSTL.load('assets/characters/john_wick/john_wick.stl', function (john_wick) {
             const johnWickMaterial = new THREE.MeshPhongMaterial({ color: 0x555555 });
             var john_wick = new THREE.Mesh(john_wick, johnWickMaterial);
             john_wick.rotation.z = -Math.PI / 20;
-            john_wick.position.x = 10; 
+            john_wick.rotation.y = -Math.PI / 6;
+            john_wick.position.x = -6.8; 
             john_wick.position.y = -0.8; 
             john_wick.position.z = 16;
             john_wick.scale.multiplyScalar(0.03);
@@ -233,25 +298,20 @@ document.body.appendChild(renderer.domElement);
             scene.add(john_wick);
         });
 
-        // Spiderman texture
-        const spidermanTexture = new THREE.TextureLoader().load('assets/characters/spiderman/spidermanTexture1.png');
-        const spidermanMaterial = new THREE.MeshPhongMaterial({ map: spidermanTexture , color: 0xB11313});
+        // John Wick poster
+        const johnWickTexture = new THREE.TextureLoader().load('assets/posters/john_wick/john_wick.jpg');
+        const johnWickMaterial = new THREE.MeshPhongMaterial({ map: johnWickTexture});
+        var johnWickPoster = new THREE.Mesh(new THREE.PlaneGeometry(5, 6), johnWickMaterial);
+        johnWickPoster.position.x = -8;
+        johnWickPoster.position.y = 5;
+        johnWickPoster.position.z = 19.9;
+        johnWickPoster.rotation.y = Math.PI;
+        scene.add(johnWickPoster);
 
-        // Spiderman
-        loaderOBJ.load('assets/characters/spiderman/spiderman.obj', (spiderman) => {
-            spiderman.traverse(function(child) {
-                if (child instanceof THREE.Mesh) {
-                    child.material = spidermanMaterial;
-                }
-            });
-            spiderman.position.x = 5; 
-            spiderman.position.y = -0.6; 
-            spiderman.position.z = -6;
-            spiderman.scale.multiplyScalar(2);
-            scene.add(spiderman);
-        });
-
-
+        // light for john wick, cus he is cool too.
+        const johnWickLight = new THREE.PointLight(0x122368, 1000, 5);
+        johnWickLight.position.x = -7; johnWickLight.position.y = 5; johnWickLight.position.z = 14;
+        scene.add(johnWickLight);
 
 
     // Outlines
@@ -265,7 +325,6 @@ document.body.appendChild(renderer.domElement);
         }
         // Cube Outline
         createOutline(cube, 0x000000, 1.05);
-
         
 
 // Set the initial position and angle of the camera.
@@ -286,7 +345,8 @@ var movement_speed = 0.004;          // Movement speed of the camera.
 var up = new THREE.Vector3(0, 1, 0); // We create a vector to store the up direction of the camera. (It is always fixed)
 var direction = new THREE.Vector3(); // We create a vector to store the direction of the camera.
 
-function init(now) {
+// This function is called every frame.
+function init(now) {    
     requestAnimationFrame(init);
     
     // Calculate delta time
@@ -312,6 +372,9 @@ function init(now) {
 
     if (camera.position.y < 0.0) camera.position.y = 0.0; // We don't want the camera to go below the floor.
 
+    // Update time for the text animation.
+    textMaterial.uniforms.time.value += 0.005;
+
     // Render
     renderer.render(scene, camera);
     
@@ -323,6 +386,8 @@ function init(now) {
     ring.rotation.y += 0.006; ring.rotation.x -= 0.006;
 }
 requestAnimationFrame(init);
+
+
 
 // We create an array to store the key states.
                 // W       A      S     D       E     Q
@@ -402,4 +467,3 @@ function onDocumentMouseMove(event) {
         lastMouseY = mouse.y;
     }
 }
-
