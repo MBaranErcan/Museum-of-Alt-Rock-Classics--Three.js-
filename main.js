@@ -1,8 +1,15 @@
-//write "npx vite" in the terminal to start the server.
+//
+// Title:
+// Author:  Mustafa Baran Ercan,    Neslihan Pelin Metin
+// ID:      2881055520,             71047171244 
+// Section: Sec_01,                 Sec_02
+// Project: 9
+// Description: Museum of Galactic Icons. A three js project that contains 3D models of famous characters from movies.
+// The user can move around the museum and look at the characters. The characters are Batman, Darth Vader, Jack Sparrow, John Wick.
+// write "npx vite" in the terminal to start the server.
+
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 
@@ -20,7 +27,6 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // ASSETS
-
 
     //Ambient Light
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
@@ -115,7 +121,6 @@ document.body.appendChild(renderer.domElement);
     scene.add(ring);
 
     // Text
-    
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     canvas.width = 800;
@@ -127,7 +132,7 @@ document.body.appendChild(renderer.domElement);
     const texture = new THREE.Texture(canvas);
     texture.needsUpdate = true;
 
-    // Define the color for the color pass
+    // Define the color for the color pass (shader) 
     const textMaterial = new THREE.ShaderMaterial({
         uniforms: {
             map: { value: texture },
@@ -159,7 +164,7 @@ document.body.appendChild(renderer.domElement);
         `,
         transparent: true,
     });
-
+    // Create a plane to display the text.
     const textGeometry = new THREE.PlaneGeometry(40, 10);
     const text = new THREE.Mesh(textGeometry, textMaterial);
     text.position.y = 11.5;
@@ -181,19 +186,20 @@ document.body.appendChild(renderer.domElement);
         //     scene.add(rock);
         //});
 
-        // Loaders
+
+        // Loaders. They are used to load the models.
         var loaderOBJ = new OBJLoader();
-        var loaderGLTF = new GLTFLoader();
-        var loaderFBX = new FBXLoader();
         var loaderSTL = new STLLoader();
         var loaderMTL = new MTLLoader();
 
 
         // Batman texture
+        // I used a texture loader to load the texture.
         const batmanTexture = new THREE.TextureLoader().load('assets/characters/batman/Batman_texture.png');
         const batmanMaterial = new THREE.MeshPhongMaterial({ map: batmanTexture });
 
         // Batman
+        // I used OBJLoader to load the model.
         loaderOBJ.load('assets/characters/batman/Batman.obj', (batman) => {
             batman.traverse(function(child) {
                 if (child instanceof THREE.Mesh) {
@@ -209,6 +215,7 @@ document.body.appendChild(renderer.domElement);
         });
 
         // Batman Poster
+        // I used a plane geometry to display the poster.
         const darkKnightTexture = new THREE.TextureLoader().load('assets/posters/batman/batman.jpg');
         const darkKnightMaterial = new THREE.MeshPhongMaterial({ map: darkKnightTexture});
         var darkKnightPoster = new THREE.Mesh(new THREE.PlaneGeometry(7, 5), darkKnightMaterial);
@@ -220,13 +227,12 @@ document.body.appendChild(renderer.domElement);
         
         // Captain Jack Sparrow
         loaderMTL.load('assets/characters/captain/Jack_Sparrow.mtl', function (materials) {
-            // Set the materials loaded from the MTLLoader as the materials for the OBJLoader
             materials.preload();
 
-            // Set the materials for the OBJLoader
+            // Set the materials obtained from the MTL file.
             loaderOBJ.setMaterials(materials);
 
-            // Load your OBJ file
+            // Load the OBJ file
             loaderOBJ.load('assets/characters/captain/Jack_Sparrow.obj', function(jack_sparrow) {
                 jack_sparrow.position.x = 6; 
                 jack_sparrow.position.y = -0.6; 
@@ -246,7 +252,7 @@ document.body.appendChild(renderer.domElement);
         scene.add(piratesPoster);
 
         // Darth Vader
-        let darth_vader;
+        let darth_vader; // In here, different than the previous models, I tried to use a global variable to store the model.
         // Darth vader texture
         const darthTexture = new THREE.TextureLoader().load('assets/characters/darth_vader/darth_vader.jpg');
         const darthMaterial = new THREE.MeshPhongMaterial({ map: darthTexture, color: 0x0f0f0f, shininess: 30 });
@@ -325,13 +331,13 @@ document.body.appendChild(renderer.domElement);
         }
         // Cube Outline
         createOutline(cube, 0x000000, 1.05);
-        
+//End of assets
 
 // Set the initial position and angle of the camera.
 camera.position.set(0, 0, 5);
 camera.rotateX(Math.PI / 10);
 
-// I wanted to add a FPS counter because I was curious about the performance of my program.
+// I wanted to add a FPS counter because I was curious about the performance of my program. And it was pretty good.
 let fps, then = performance.now();                  // It works by calculating the time between each frame.
 const fpsCounter = document.createElement('div');   // Create a HTML element to display the FPS
 fpsCounter.style.position = 'fixed';                // Set it to be fixed (not moving).
@@ -428,38 +434,38 @@ function onDocumentKeyUp(event) {
 }
 
 // MOUSE (Camera) rotation
-window.addEventListener('mousemove', onDocumentMouseMove, false);
-var lastMouseX = 0, lastMouseY = 0;
+window.addEventListener('mousemove', onDocumentMouseMove, false);   // When the mouse is moved, we call the function with event listener.
+var lastMouseX = 0, lastMouseY = 0; // We create variables to store the last mouse position.
 var x_rotate = Math.PI / 10; // Initial rotation of the camera.
-var y_rotate = 0;
-function onDocumentMouseMove(event) {
+var y_rotate = 0;   // Initial rotation of the camera.
+function onDocumentMouseMove(event) {       // This function is called when the mouse is moved.
     
-    event.preventDefault();
+    event.preventDefault(); // Prevent the default action of the mouse.
     
-    if (event.buttons == 1) {
-        var mouse = new THREE.Vector2();
+    if (event.buttons == 1) { // If the left mouse button is pressed.
+        var mouse = new THREE.Vector2();   // We create a vector of 2 to store the mouse position.
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1; // -1 to 1
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1; // -1 to 1
     
-    var changeAmountX = (mouse.x - lastMouseX )* 1;
-    var changeAmountY = (mouse.y - lastMouseY )* 1;
+    var changeAmountX = (mouse.x - lastMouseX )* 1; // We calculate the change in mouse position.
+    var changeAmountY = (mouse.y - lastMouseY )* 1; 
     
-    lastMouseX = mouse.x;
+    lastMouseX = mouse.x;   // We set the last mouse position to the current mouse position.
     lastMouseY = mouse.y;
     
-    x_rotate += -changeAmountY;
+    x_rotate += -changeAmountY; // We add the change in mouse position to the rotation of the camera.
     y_rotate += changeAmountX;
     
-    if (x_rotate > Math.PI / 2) x_rotate = Math.PI / 2;
+    if (x_rotate > Math.PI / 2) x_rotate = Math.PI / 2; // We don't want the camera to rotate more than 90 degrees.
     if (x_rotate < -Math.PI / 2) x_rotate = -Math.PI / 2;
     
-    camera.setRotationFromEuler(new THREE.Euler(0, 0, 0, 'XYZ'));
-    camera.rotateOnAxis(new THREE.Vector3(0, 1, 0), y_rotate);
+    camera.setRotationFromEuler(new THREE.Euler(0, 0, 0, 'XYZ')); // We reset the rotation of the camera.
+    camera.rotateOnAxis(new THREE.Vector3(0, 1, 0), y_rotate);  // We rotate the camera on the y and x axis.
     camera.rotateOnAxis(new THREE.Vector3(1, 0, 0), x_rotate);
     
     }
     else {
-        var mouse = new THREE.Vector2();
+        var mouse = new THREE.Vector2();    
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1; // -1 to 1
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1; // -1 to 1
         
